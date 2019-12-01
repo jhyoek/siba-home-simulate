@@ -35,7 +35,7 @@ void window_open(){
     open_lock=1;
     if(!window){
       window=1;
-      for (int angle = 0; angle < 130; angle++)
+      for (int angle = 15; angle < 130; angle++)
       {
           myservo.write(angle);    //angle(각도)값으로 서보모터 제어
           delay(10);                    //delay로 각도의 변화 속도를 조절
@@ -50,7 +50,7 @@ void window_close(){
     close_lock=1;
     if(window){
       window=0;
-      for (int angle = 130; angle > 0; angle--)
+      for (int angle = 130; angle > 15; angle--)
       {
           myservo.write(angle);    //angle(각도)값으로 서보모터 제어
           delay(10);                    //delay로 각도의 변화 속도를 조절
