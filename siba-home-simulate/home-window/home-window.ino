@@ -141,6 +141,7 @@ void init_device_state() {
     */
     siba.init_state("window", window,1);
     siba.init_state("auto", auto_mode,1);
+    siba.init_state("temp", getTemperature(0),1);
 }
 void setup() {
     Serial.begin(115200); //board's baud rate
@@ -153,7 +154,9 @@ void setup() {
     dht.humidity().getSensor(&sensor);
     //최소한의 대기시간을 얻어 온다.
     delayMS = sensor.min_delay / 1000;  
-    
+    if(delayMS<5000) delayMS = 5000;
+    myservo.write(15);
+    delay(2000);
     /* ---------------------------------------------*/
     add_ctrl_cmd_group(); //add all control command
     add_sensing_group(); //add all sensing event
@@ -169,11 +172,13 @@ void loop() {
     //keep alive your device and SIBA platform
     siba.verify_connection();
     if(millis()-prev>delayMS){
-      getTemperature();
+      getTemperature(1);
       prev=millis();
     }
 }
-void getTemperature(){
+int getTemperature(){
+  int temp = 0;
+  
   sensors_event_t event;  
   //온도값 얻기
   dht.temperature().getEvent(&event);
@@ -186,9 +191,11 @@ void getTemperature(){
     //실제 온도 값
     Serial.print(event.temperature);
     Serial.println(" *C");
+    temp = (int)event.temperature;
+    siba.set_state("temp",temp,1)
   }
-  
-  if(auto_mode){
+
+  if(flag && auto_mode){
     if(event.temperature > 26){ //열기
       window_open();
     } 
@@ -196,4 +203,6 @@ void getTemperature(){
       window_close();
     }
   }
+
+  return temp;
 }
